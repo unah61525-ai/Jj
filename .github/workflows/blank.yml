@@ -1,0 +1,48 @@
+# name: CI - Build X-SETTINGS APK
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build X-SETTINGS APK
+        run: |
+          echo "=== X-SETTINGS BUILD ==="
+          echo "FPS Lock: 60Hz"
+          echo "Drag: 240Hz"
+          echo "Fast Click: ON"
+          
+          # Init Capacitor project
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/app @capacitor/haptics
+          
+          # Init app - web-dir = root (tempat index.html lu)
+          npx cap init X-SETTINGS com.xsettings.app --web-dir=.
+          
+          # Add Android
+          npx cap add android
+          
+          # Inject setting 240Hz + Fast Click ke AndroidManifest &
